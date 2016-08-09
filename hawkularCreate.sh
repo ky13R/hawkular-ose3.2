@@ -70,7 +70,7 @@ oc create -f /tmp/$volName.json
 cp /usr/share/openshift/examples/infrastructure-templates/enterprise/metrics-deployer.yaml .
 
 # Get the subdomain value to use as a variable for the following commands
-cloudDomain=$(grep subdomain master-config.yaml | awk '{print $2}' | sed -e 's/^"//' -e 's/"$//')
+cloudDomain=$(grep subdomain /etc/origin/master/master-config.yaml | awk '{print $2}' | sed -e 's/^"//' -e 's/"$//')
 
 if [ $volSize != 10 ]
   # Cassandra db is expecting a 10G persistent volume; if using a larger volume, you need to specify with the following:
