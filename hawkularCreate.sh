@@ -69,14 +69,16 @@ oc create -f /tmp/$volName.json
 # Copy example template
 cp /usr/share/openshift/examples/infrastructure-templates/enterprise/metrics-deployer.yaml .
 
+# Get the subdomain value to use as a variable for the following commands
+cloudDomain=$(grep subdomain master-config.yaml | awk '{print $2}' | sed -e 's/^"//' -e 's/"$//')
+
 if [ $volSize != 10 ]
   # Cassandra db is expecting a 10G persistent volume; if using a larger volume, you need to specify with the following:
-  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.apps.yourDomain.com, CASSANDRA_PV_SIZE="$volSize"Gi | oc create -f -
+  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain, CASSANDRA_PV_SIZE="$volSize"Gi | oc create -f -
 else
- oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.apps.yourDomain.com | oc create -f -
+ oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain | oc create -f -
 fi 
 # add the following line to the /etc/origin/master/master-config.yaml under 'assetConfig'
-cloudDomain=$(grep subdomain /etc/origin/master/master-config.yaml | awk '{print $2}' | sed -e 's/^"//' -e 's/"$//')
 sed -i "s/logoutURL:\ ""/logoutURL:\ ""\n  metricsPublicURL:\ https:\/\/hawkular-metrics-openshift-infra.$cloudDomain\/hawkular\/metrics/" /etc/origin/master/master-config.yaml
 
 # Bounce the master/nodes
