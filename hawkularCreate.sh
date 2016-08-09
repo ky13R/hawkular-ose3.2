@@ -8,7 +8,7 @@ echo " "
 echo "Please enter the PV name (ex. myvolume):"
 read volName
 
-echo "Please enter the volume size (ex. 10Gi):"
+echo "Please enter the volume size (ex. 10):"
 read volSize
 
 echo "Please enter the path to the nfs mounted share (ex. /mnt/nfs):"
