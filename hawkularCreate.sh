@@ -22,17 +22,14 @@ oc project openshift-infra
 
 # Create the metrics-deployer service account
 echo "Creating metrics-deployer service account"
-echo -e "{
- \"apiVersion\": \"v1\",
- \"kind\": \"ServiceAccount\",
- \"metadata\": {
- \"name\": \"metrics-deployer\",
- \"secrets\":  
- \"name\": \"metrics-deployer\"
- }
-}"  > /tmp/metrics-sa-deployer.json
-
-oc create -f /tmp/metrics-sa-deployer.json
+oc create -f - <<API
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: metrics-deployer
+secrets:
+- name: metrics-deployer
+API
 
 # metrics-deployer needs to be able to edit the openshift-infra project
 oadm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer
@@ -69,17 +66,14 @@ oc create -f /tmp/$volName.json
 # Copy example template
 cp /usr/share/openshift/examples/infrastructure-templates/enterprise/metrics-deployer.yaml .
 
-# Get the subdomain value to use as a variable for the following commands
-cloudDomain=$(grep subdomain /etc/origin/master/master-config.yaml | awk '{print $2}' | sed -e 's/^"//' -e 's/"$//')
-
-if [ $volSize != 10 ]
+if [ $volSize != 10 ]; then
   # Cassandra db is expecting a 10G persistent volume; if using a larger volume, you need to specify with the following:
-  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain, CASSANDRA_PV_SIZE="$volSize"Gi | oc create -f -
+  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.apps.yourDomain.com, CASSANDRA_PV_SIZE="$volSize"Gi | oc create -f -
 else
- oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain | oc create -f -
+ oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.apps.yourDomain.com | oc create -f -
 fi 
 # add the following line to the /etc/origin/master/master-config.yaml under 'assetConfig'
-sed -i "s/logoutURL:\ ""/logoutURL:\ ""\n  metricsPublicURL:\ https:\/\/hawkular-metrics-openshift-infra.$cloudDomain\/hawkular\/metrics/" /etc/origin/master/master-config.yaml
+sed -i s/publicURL/\nmetricsPublicURL: https:\/\/hawkular-metrics-openshift-infra.apps.yourDomain.com\/hawkular\/metrics/'
 
 # Bounce the master/nodes
 echo "Restarting atomic-openshift-master"
