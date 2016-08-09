@@ -76,8 +76,9 @@ else
  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.apps.yourDomain.com | oc create -f -
 fi 
 # add the following line to the /etc/origin/master/master-config.yaml under 'assetConfig'
-#metricsPublicURL: "https://hawkular-metrics-openshift-infra.apps.yourDomain.com/hawkular/metrics"
+cloudDomain=$(grep subdomain /etc/origin/master/master-config.yaml | awk '{print $2}' | sed -e 's/^"//' -e 's/"$//')
+sed -i "s/logoutURL:\ ""/logoutURL:\ ""\n  metricsPublicURL:\ https:\/\/hawkular-metrics-openshift-infra.$cloudDomain\/hawkular\/metrics/" /etc/origin/master/master-config.yaml
 
 # Bounce the master/nodes
-#echo "Restarting atomic-openshift-master"
-#systemctl restart atomic-openshift-master
+echo "Restarting atomic-openshift-master"
+systemctl restart atomic-openshift-master
