@@ -72,7 +72,7 @@ cloudDomain=$(grep subdomain /etc/origin/master/master-config.yaml | awk '{print
 
 if [ $volSize != 10 ]; then
   # Cassandra db is expecting a 10G persistent volume; if using a larger volume, you need to specify with the following:
-  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain, CASSANDRA_PV_SIZE="$volSize"Gi | oc create -f -
+  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain,CASSANDRA_PV_SIZE="$volSize"Gi | oc create -f -
 else
  oc process -f metrics-deployer.yaml -v HAWKULAR_METRICS_HOSTNAME=hawkular-metrics-openshift-infra.$cloudDomain | oc create -f -
 fi 
