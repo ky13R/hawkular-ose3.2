@@ -1,4 +1,4 @@
-## ky13 (kritchie@redhat.com
+## ky13 (kritchie@redhat.com)
 
 echo " "
 echo -e "########################################\n### Create Hawkular Infrastructure (Hawkular/Heapster/Cassandra DB) ###\n########################################"
